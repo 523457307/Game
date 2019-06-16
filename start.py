@@ -1,12 +1,14 @@
 import pygame, random, sys
 from pygame.locals import *
 
+map_height = 700
+map_width = 700
 
 def main():
     pygame.init()
 
-    win = pygame.display.set_mode((700,700),pygame.RESIZABLE)
-    win.fill(while)
+    win = pygame.display.set_mode((map_width,map_height),pygame.RESIZABLE)
+    win.fill(white)
     pygame.display.set_caption("贪吃蛇")
 
     sneak_speed = pygame.time.Clock()
@@ -21,7 +23,8 @@ def main():
 def show_start_screen(win):
 
     font = pygame.font.Font('System/Library/Fonts/Bodoni 72 Smallcaps Book.ttf', 40)
-    tip = font.render('按任意键开始'， True, (65,100,100))
+    # tip = font.render('按任意键开始'， True, (65,100,100))
+    tip = font.render("Hello World", True, (65,100,100))
     gamestart = pygame.image.load("开始游戏.jpg")
     win.blit(gamestart, (140, 30))
     win.blit(tip, (240, 550))
@@ -37,7 +40,7 @@ def show_start_screen(win):
                 else:
                     return
 
-def start_game(screen):
+def start_game(win, sneak_speed):
     # initialize snake position, food position, direction
     snake_pos = [random.randint(0,500),random.randint(0, 500)]
     food_pos = [random.randint(0,700),random.randint(0, 700)]
@@ -52,34 +55,30 @@ def start_game(screen):
 
     while True:
         for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                
-            if event == K_UP and not direction == 'down':
-                change_dir = 'up'
-            elif event == K_DOWN and not direction == 'up':
-                change_dir = 'down'
-            elif event == K_LEFT and not direction == 'right':
-                change_dir = 'left'
-            elif event == K_RIGHT and not direction == 'left':
-                change_dir = 'right'
+            if event.type == QUIT:
+                terminate()
+            elif event.type == KEYDOWN:
+                if event.key == K_UP and not direction == 'down':
+                    change_dir = 'up'
+                elif event.key == K_DOWN and not direction == 'up':
+                    change_dir = 'down'
+                elif event.key == K_LEFT and not direction == 'right':
+                    change_dir = 'left'
+                elif event.key == K_RIGHT and not direction == 'left':
+                    change_dir = 'right'
+                elif event.key == K_ESCAPE:
+                    terminate()
+
+        move_snake(direction, snake_pos)
+
+        alive = snake_alive()
+
+        if not alive:
+            break
+
+        move_snake(direction, snake_pos, snake_body)
 
 
-
-
-        if direction == 'right' :
-            snake_pos[0] += 20
-
-        elif direction == 'left':
-            snake_pos[0] -= 20
-
-        elif direction == 'up' :
-            snake_pos[1] -= 20
-
-        elif direction == 'down':
-            snake_pos[1] += 20
-
-        snake_body.insert(0, snake_pos)
-        snake_body.pop()
 
 
         if eat_food(snake_pos, food_pos) == True:
@@ -93,3 +92,31 @@ def eat_food(snake_pos, food_pos):
         return True
     else:
         return False
+
+def snake_alive(snake_pos):
+    alive = True
+    if snake_pos[0] == -1 or snake_pos[0] == map_width or \
+        snake_pos[1] == -1 or snake_pos[1] == map_height:
+        alive = False
+    for body in snake_body:
+        if body[0] = snake_pos[0] and body[1] == snake_pos[1]:
+            alive = False
+
+    return tag
+
+
+def move_snake(direction, snake_pos, snake_body):
+    if direction == 'right' :
+        snake_pos[0] += 20
+
+    elif direction == 'left':
+        snake_pos[0] -= 20
+
+    elif direction == 'up' :
+        snake_pos[1] -= 20
+
+    elif direction == 'down':
+        snake_pos[1] += 20
+
+    snake_body.insert(0, snake_pos)
+    snake_body.pop()
