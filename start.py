@@ -3,6 +3,7 @@ from pygame.locals import *
 
 map_height = 700
 map_width = 700
+cell_size = 20
 
 def main():
     pygame.init()
@@ -69,23 +70,40 @@ def start_game(win, sneak_speed):
                 elif event.key == K_ESCAPE:
                     terminate()
 
-        move_snake(direction, snake_pos)
+        move_snake(direction, snake_pos, snake_body)
 
         alive = snake_alive()
 
         if not alive:
             break
 
-        move_snake(direction, snake_pos, snake_body)
-
-
-
-
+        # if eat_food then
         if eat_food(snake_pos, food_pos) == True:
+            food_pos = [random.randint(0,map_width - 1),random.randint(0, map_height - 1 )]
+            continue
+        else:
+            snake_body.pop()
+
+        # draw snake, food, and else
+
+
+
 
 
         return
+def draw_food (screen, food_pos):
+    x = food_pos[0] * cell_size
+    y = food_pos[1] * cell_size
+    foodRect = pygame.Rect(x,y,cell_size,cell_size)
+    pygame.draw.rect(screen, Red, foodRect)
 
+def draw_score(screen, score):
+    temp = "Your score is: %s"
+    font pygame.font.Font('System/Library/Fonts/Bodoni 72 Smallcaps Book.ttf', 20)
+    scoreSurf = font.render(temp % score, True, Green)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.topleft = (map_width - 120, 10)
+    screen.blit(scoreSurf, scoreRect)
 
 def eat_food(snake_pos, food_pos):
     if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
@@ -107,16 +125,15 @@ def snake_alive(snake_pos):
 
 def move_snake(direction, snake_pos, snake_body):
     if direction == 'right' :
-        snake_pos[0] += 20
+        snake_pos[0] += cell_size
 
     elif direction == 'left':
-        snake_pos[0] -= 20
+        snake_pos[0] -= cell_size
 
     elif direction == 'up' :
-        snake_pos[1] -= 20
+        snake_pos[1] -= cell_size
 
     elif direction == 'down':
-        snake_pos[1] += 20
+        snake_pos[1] += cell_size
 
     snake_body.insert(0, snake_pos)
-    snake_body.pop()
