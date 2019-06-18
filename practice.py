@@ -14,3 +14,22 @@ cood = [{'x' : startx, 'y' : starty},
         {'x' : startx -2, 'y' : starty}]
 
 cood[2]['y']
+
+
+
+x = [100,200,300]
+print(x[1])
+def foo (x):
+    x[1] = 21312
+
+
+
+foo(x)
+print(x)
+
+
+w = "www"
+w = xx
+xx = "asdasd"
+
+print (w)
