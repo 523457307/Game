@@ -4,8 +4,8 @@ from pygame.locals import *
 map_height = 700
 map_width = 700
 cell_size = 20
-real_height = map_height/cell_size
-real_width = map_width/cell_size
+real_height = int(map_height/cell_size)
+real_width = int(map_width/cell_size)
 # color
 Red = (255,0,0)
 Green = (0,255,0)
@@ -14,21 +14,21 @@ dark_blue = (0,0,166)
 Black = (0,0,0)
 White = (255,255,255)
 
+Back_color = Black
+
+snake_speed = 15
+
 def main():
     pygame.init()
-
     win = pygame.display.set_mode((map_width,map_height),pygame.RESIZABLE)
+    snake_speed_clock = pygame.time.Clock()
     win.fill(White)
-    pygame.display.set_caption("贪吃蛇")
-
-    snake_speed = pygame.time.Clock()
-
+    pygame.display.set_caption("Python 贪吃蛇")
     show_start_screen(win)
     while True:
-        start_game(win, snake_speed)
+        start_game(win, snake_speed_clock)
         show_result_screen(win)
-        # run game
-        # show result
+
 
 
 def show_result_screen(win):
@@ -69,7 +69,7 @@ def show_start_screen(win):
                 else:
                     return
 
-def start_game(win, sneak_speed):
+def start_game(win, sneak_speed_clock):
     # initialize snake position, food position, direction
     snake_pos = [random.randint(0,real_width),random.randint(0, real_height)]
     food_pos = [random.randint(0,real_width),random.randint(0, real_height)]
@@ -110,14 +110,12 @@ def start_game(win, sneak_speed):
         else:
             snake_body.pop()
 
+        screen.fill(Back_color)
         # draw snake, food, and else
         draw_score(screen, score)
         draw_snake(screen, snake_body)
-
-
-
-
-        return
+        pygame.display.update()
+        snake_speed_clock.tick(snake_speed)
 
 def draw_food (screen, food_pos):
     x = food_pos[0] * cell_size
@@ -173,3 +171,6 @@ def move_snake(direction, snake_pos, snake_body):
         snake_pos[1] += 1
 
     snake_body.insert(0, snake_pos)
+
+
+main()
