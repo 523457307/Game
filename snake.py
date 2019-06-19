@@ -1,8 +1,8 @@
 import pygame, random, sys
 from pygame.locals import *
 
-map_height = 700
-map_width = 700
+map_height = 600
+map_width = 800
 cell_size = 20
 real_height = int(map_height/cell_size)
 real_width = int(map_width/cell_size)
@@ -26,10 +26,13 @@ def main():
     pygame.display.set_caption("Python 贪吃蛇")
     show_start_screen(win)
     while True:
+        pygame.event.pump()
         start_game(win, snake_speed_clock)
         show_result_screen(win)
 
-
+        # for event in pygame.event.get():
+        #     if event.type == pygame.QUIT:
+        #         pygame.quit()
 
 def show_result_screen(win):
     font = pygame.font.Font('Avenir Next Condensed.ttc', 40)
@@ -51,10 +54,10 @@ def show_result_screen(win):
 
 def show_start_screen(win):
 
-    font = pygame.font.Font('Avenir Next Condensed.ttc', 40)
+    font = pygame.font.Font('Game/Avenir Next Condensed.ttc', 40)
     # tip = font.render('按任意键开始'， True, (65,100,100))
     tip = font.render("Hello World", True, (65,100,100))
-    gamestart = pygame.image.load("开始游戏.jpg")
+    gamestart = pygame.image.load("Game/开始游戏.jpg")
     win.blit(gamestart, (140, 30))
     win.blit(tip, (240, 550))
     pygame.display.update()
@@ -98,7 +101,7 @@ def start_game(win, sneak_speed_clock):
 
         move_snake(direction, snake_pos, snake_body)
 
-        alive = snake_alive()
+        alive = snake_alive(snake_pos, snake_body)
 
         if not alive:
             break
@@ -125,7 +128,7 @@ def draw_food (screen, food_pos):
 
 def draw_score(screen, score):
     temp = "Your score is: %s"
-    font = pygame.font.Font('Avenir Next Condensed.ttc', 20)
+    font = pygame.font.Font('Game/Avenir Next Condensed.ttc', 20)
     scoreSurf = font.render(temp % score, True, Green)
     scoreRect = scoreSurf.get_rect()
     scoreRect.topleft = (map_width - 120, 10)
@@ -146,7 +149,7 @@ def eat_food(snake_pos, food_pos):
     else:
         return False
 
-def snake_alive(snake_pos):
+def snake_alive(snake_pos,snake_body):
     alive = True
     if snake_pos[0] == -1 or snake_pos[0] == real_width or \
         snake_pos[1] == -1 or snake_pos[1] == real_height:
@@ -172,5 +175,10 @@ def move_snake(direction, snake_pos, snake_body):
 
     snake_body.insert(0, snake_pos)
 
+def terminate():
+    pygame.quit()
+    sys.exit()
 
-main()
+
+if __name__ == '__main__':
+    main()
