@@ -1,179 +1,188 @@
-import pygame, random, sys
-from pygame.locals import *
+'''This file displays and runs the game SNAKE'''
+import sys
+import random
+import pygame
+# from pygame.locals import *
 
-map_height = 600
-map_width = 800
-cell_size = 20
-real_height = int(map_height/cell_size)
-real_width = int(map_width/cell_size)
+MAP_HEIGHT = 600
+MAP_WIDTH = 800
+CELL_SIZE = 20
+REAL_HEIGHT = int(MAP_HEIGHT/CELL_SIZE)
+REAL_WIDTH = int(MAP_WIDTH/CELL_SIZE)
 # color
-Red = (255,0,0)
-Green = (0,255,0)
-Blue = (0,0,255)
-dark_blue = (0,0,166)
-Black = (0,0,0)
-White = (255,255,255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+DARK_BLUE = (0, 0, 166)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BACK_COLOR = BLACK
 
-Back_color = Black
+SNAKE_SPEED = 15
 
-snake_speed = 15
+# 定义方向
+UP = 1
+DOWN = 2
+LEFT = 3
+RIGHT = 4
+
+HEAD = 0 #贪吃蛇头部下标
+X = 0
+Y = 1
 
 def main():
+    '''run the game'''
     pygame.init()
-    win = pygame.display.set_mode((map_width,map_height),pygame.RESIZABLE)
+    win = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT), pygame.RESIZABLE)
     snake_speed_clock = pygame.time.Clock()
-    win.fill(White)
-    pygame.display.set_caption("Python 贪吃蛇")
+    win.fill(WHITE)
+    pygame.display.set_caption("Python 贪吃蛇小游戏")
     show_start_screen(win)
     while True:
-        pygame.event.pump()
+        pygame.event.get()
         start_game(win, snake_speed_clock)
         show_result_screen(win)
 
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         pygame.quit()
-
-def show_result_screen(win):
-    font = pygame.font.Font('Avenir Next Condensed.ttc', 40)
-    tip = font.render("Hello World", True, (65,100,100))
-    gamestart = pygame.image.load("GameOver.jpg")
-    win.blit(gamestart, (140, 30))
-    win.blit(tip, (240, 550))
-    pygame.display.update()
-
-    while True:
-        for event in  pygame.event.get():
-            if (event.type == QUIT):
-                terminate()
-            elif event.type == KEYDOWN:
-                if (event.key == K_ESCAPE):
-                    terminate()
-                else:
-                    return
-
 def show_start_screen(win):
-
-    font = pygame.font.Font('Game/Avenir Next Condensed.ttc', 40)
-    # tip = font.render('按任意键开始'， True, (65,100,100))
-    tip = font.render("Hello World", True, (65,100,100))
-    gamestart = pygame.image.load("Game/开始游戏.jpg")
+    font = pygame.font.Font('/System/Library/Fonts/AquaKana.ttc', 40)
+    # tip = font.render('按任意键开始'， True, (65, 100, 100))
+    tip = font.render("Type Any Key to Start!", True, RED)
+    gamestart = pygame.image.load("/Users/WangZheng/Desktop/Game/gamestart.png")
     win.blit(gamestart, (140, 30))
-    win.blit(tip, (240, 550))
+    win.blit(tip, (170, 550))
     pygame.display.update()
 
     while True:
+        pygame.event.get()
         for event in  pygame.event.get():
-            if (event.type == QUIT):
+            if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == KEYDOWN:
-                if (event.key == K_ESCAPE):
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     terminate()
                 else:
                     return
 
-def start_game(win, sneak_speed_clock):
-    # initialize snake position, food position, direction
-    snake_pos = [random.randint(0,real_width),random.randint(0, real_height)]
-    food_pos = [random.randint(0,real_width),random.randint(0, real_height)]
+def start_game(win, snake_speed_clock):
+    '''initialize snake position, food position, direction'''
+    start_pos = [random.randint(3, REAL_WIDTH - 5), random.randint(3, REAL_HEIGHT - 5)]
 
-    snake_body = [snake_pos, [snake_pos[0],snake_pos[1] - 1], [snake_pos[0],snake_pos[1] - 2]]
+    food_pos = [random.randint(0, REAL_WIDTH - 1), random.randint(0, REAL_HEIGHT - 1)]
+
+    snake_body = [start_pos, [start_pos[0]-1, start_pos[1]], [start_pos[0]-2, start_pos[1]]]
 
     direction = 'right'
 
-    food = 1
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_UP or event.key == pygame.K_w) and direction != 'down':
+                    direction = 'up'
+                elif (event.key == pygame.K_DOWN or event.key == pygame.K_s) and direction != 'up':
+                    direction = 'down'
+                elif (event.key == pygame.K_LEFT or event.key == pygame.K_a) and direction != 'right':
+                    direction = 'left'
+                elif (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and direction != 'left':
+                    direction = 'right'
+                elif event.key == pygame.K_ESCAPE:
+                    terminate()
+
+        move_snake(direction, snake_body)
+
+        alive = snake_alive(snake_body)
+        if not alive:
+            break
+        eat_food(snake_body, food_pos)
+        win.fill(BACK_COLOR)
+
+        # draw snake, food, and else
+        draw_snake(win, snake_body)
+        draw_food(win, food_pos)
+        draw_score(win, len(snake_body) - 3)
+        pygame.display.update()
+        snake_speed_clock.tick(SNAKE_SPEED)
+
+
+def show_result_screen(win):
+    # font = pygame.font.Font('/System/Library/Fonts/AquaKana.ttc', 40)
+    # tip = font.render("Nice Work!", True, (65, 100, 100))
+    gamestart = pygame.image.load("/Users/WangZheng/Desktop/Game/gameover.png")
+    win.blit(gamestart, (80, 10))
+    # win.blit(tip, (240, 500))
+    pygame.display.update()
 
     while True:
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == KEYDOWN:
-                if event.key == K_UP and not direction == 'down':
-                    direction = 'up'
-                elif event.key == K_DOWN and not direction == 'up':
-                    direction = 'down'
-                elif event.key == K_LEFT and not direction == 'right':
-                    direction = 'left'
-                elif event.key == K_RIGHT and not direction == 'left':
-                    direction = 'right'
-                elif event.key == K_ESCAPE:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     terminate()
+                else:
+                    return
 
-        move_snake(direction, snake_pos, snake_body)
 
-        alive = snake_alive(snake_pos, snake_body)
+def draw_food (win, food_pos):
+    x = food_pos[X] * CELL_SIZE
+    y = food_pos[Y] * CELL_SIZE
+    foodRect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
+    pygame.draw.rect(win, RED, foodRect)
 
-        if not alive:
-            break
-
-        # if eat_food then
-        if eat_food(snake_pos, food_pos) == True:
-            food_pos = [random.randint(0,real_width - 1),random.randint(0, real_height - 1 )]
-            draw_food(screen, food_pos)
-        else:
-            snake_body.pop()
-
-        screen.fill(Back_color)
-        # draw snake, food, and else
-        draw_score(screen, score)
-        draw_snake(screen, snake_body)
-        pygame.display.update()
-        snake_speed_clock.tick(snake_speed)
-
-def draw_food (screen, food_pos):
-    x = food_pos[0] * cell_size
-    y = food_pos[1] * cell_size
-    foodRect = pygame.Rect(x,y,cell_size,cell_size)
-    pygame.draw.rect(screen, Red, foodRect)
-
-def draw_score(screen, score):
+def draw_score(win, score):
     temp = "Your score is: %s"
-    font = pygame.font.Font('Game/Avenir Next Condensed.ttc', 20)
-    scoreSurf = font.render(temp % score, True, Green)
+    font = pygame.font.Font('/System/Library/Fonts/AquaKana.ttc', 20)
+    scoreSurf = font.render(temp % score, True, GREEN)
     scoreRect = scoreSurf.get_rect()
-    scoreRect.topleft = (map_width - 120, 10)
-    screen.blit(scoreSurf, scoreRect)
+    scoreRect.topleft = (MAP_WIDTH - 200, 10)
+    win.blit(scoreSurf, scoreRect)
 
-def draw_snake(screen, snake_body):
+
+def draw_snake(win, snake_body):
     for coor in snake_body:
-        x = coor[0] * cell_size
-        y = coor[1] * cell_size
-        segmentRect = pygame.Rect(x,y,cell_size,cell_size)
-        pygame.draw.rect(screen, Blue, segmentRect)
-        innersegRect = pygame.Rect(x + 3,y + 3,cell_size - 6,cell_size - 6)
-        pygame.draw.rect(screen, dark_blue, innersegRect)
+        x = coor[X] * CELL_SIZE
+        y = coor[Y] * CELL_SIZE
+        segmentRect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
+        pygame.draw.rect(win, BLUE, segmentRect)
+        innersegRect = pygame.Rect(x + 3,y + 3,CELL_SIZE - 6,CELL_SIZE - 6)
+        pygame.draw.rect(win, GREEN, innersegRect)
 
-def eat_food(snake_pos, food_pos):
-    if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
-        return True
+
+
+def eat_food(snake_body, food_pos):
+    '''If snake eats food, then sign a new food position, else snake moves by del the last body'''
+    if snake_body[HEAD][X] == food_pos[X] and snake_body[HEAD][Y] == food_pos[Y]:
+        food_pos[X] = random.randint(0, REAL_WIDTH - 1)
+        food_pos[Y] = random.randint(0, REAL_HEIGHT - 1)
     else:
-        return False
+        del snake_body[-1]
 
-def snake_alive(snake_pos,snake_body):
+def snake_alive(snake_body):
     alive = True
-    if snake_pos[0] == -1 or snake_pos[0] == real_width or \
-        snake_pos[1] == -1 or snake_pos[1] == real_height:
+    if snake_body[HEAD][X] == -1 or snake_body[HEAD][X] == REAL_WIDTH or \
+        snake_body[HEAD][Y] == -1 or snake_body[HEAD][Y] == REAL_HEIGHT:
         alive = False
-    for body in snake_body:
-        if body[0] == snake_pos[0] and body[1] == snake_pos[1]:
+    #check if any body segments crash the head position
+    for body in snake_body[1:]:
+        if body[X] == snake_body[HEAD][X] and body[Y] == snake_body[HEAD][Y]:
             alive = False
-
     return alive
 
-def move_snake(direction, snake_pos, snake_body):
+def move_snake(direction, snake_body):
     if direction == 'right' :
-        snake_pos[0] += 1
+        newhead = [snake_body[HEAD][X] + 1, snake_body[HEAD][Y] ]
 
     elif direction == 'left':
-        snake_pos[0] -= 1
+        newhead = [snake_body[HEAD][X] - 1, snake_body[HEAD][Y] ]
 
     elif direction == 'up' :
-        snake_pos[1] -= 1
+        newhead = [snake_body[HEAD][X], snake_body[HEAD][Y] - 1 ]
 
     elif direction == 'down':
-        snake_pos[1] += 1
+        newhead = [snake_body[HEAD][X], snake_body[HEAD][Y] + 1 ]
 
-    snake_body.insert(0, snake_pos)
+    snake_body.insert(0, newhead)
 
 def terminate():
     pygame.quit()
