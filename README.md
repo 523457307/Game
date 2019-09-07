@@ -1,2 +1,2 @@
 # Game
-using pygame build simple 2D game
+Use pygame library to build 2D game(Gluttonous Snake)
